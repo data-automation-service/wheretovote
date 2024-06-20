@@ -321,8 +321,8 @@
 
           let src = document.location.href;
           let urlParams = new URLSearchParams(src);
-          let constituencyCode = urlParams.get('Code');
-          console.log(constituencyCode);
+          let constituencyCode = urlParams.get('code');
+          console.log(src,urlParams,constituencyCode);
 
           let point = turf.point([lng,lat]);
           let westminsterConstituencies = westminsterConstituenciesFeatureCollection.features;
