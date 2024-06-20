@@ -159,7 +159,6 @@
             background-size: cover;
             background-position: bottom;
             background-repeat: no-repeat;
-            background-image: url(https://i.ibb.co/NS5tSWM/Hero.png);
             padding-left: 20px;
             margin-left: -20px;
           }
@@ -167,8 +166,9 @@
           #candidateName {
             position: absolute;
             bottom: 0;
-            right: 0;
-            padding: 10px 20px 10px 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 15px 10px 15px;
             border: 3px solid #d00c3c;
             background-color: white;
             box-sizing: border-box;
@@ -177,7 +177,7 @@
             font-weight: 800;
             text-align: right;
             flex-grow: 0;
-            margin: 0 0 0 0;
+            margin: 0;
             font-style: italic;
           }
 
@@ -251,7 +251,7 @@
       <div id="left">
         <div id="headingSection">
           <h1 id="heading">WHERE TO VOTE</h1>
-          <h2 id="subheading">in Hamilton & Clyde Valley</h2>
+          <h2 id="subheading">in ELECTORATE</h2>
         </div>
         <div id="mapSection">
           <h3 id="addressLabel">Enter your address...</h3>
@@ -269,7 +269,7 @@
       </div>
       <div id="right">
         <div id="hero">
-          <h2 id="candidateName">Imogen Walker</h2>
+          <h2 id="candidateName">Candidate Name</h2>
         </div>
       </div>
     </div>
@@ -327,14 +327,14 @@
 
         let src = document.location.href;
         let constituencyCode = src.split("?code=")[1];
-        let constituencyIndex = constituencyCodes.indexOf(constituencyCode);
-        let selectedConstituency = constituencyList[constituencyIndex];
-        console.log(src,constituencyCode)
+        if (!constituencyCode){constituencyCode = "S14000006"}
+        let constituencyIndex = constituencyCodes.indexOf(constituencyCode.toString());
+        let selectedConstituency = constituencyList.constituencies[constituencyIndex];
 
         document.getElementById("informationContainer").style.display = "flex";
         document.getElementById("subheading").innerHTML = "in "+ selectedConstituency.constituencyName;
-        document.getElementById("candidateName").innerHTML = "in "+ selectedConstituency.candidateName;
-        document.getElementById("hero").backgroundImage = "url("+selectedConstituency.candidateImage+")";
+        document.getElementById("candidateName").innerHTML = selectedConstituency.candidateName;
+        document.getElementById("hero").style.backgroundImage = "url("+selectedConstituency.candidateImage+")";
 
         async function updateMap(){
           let address = document.getElementById("addressInput").value.split(" ").join("_");
@@ -351,9 +351,8 @@
             let constituencyPolygon = constituency.geometry;
             let insideConstituency = turf.inside(point,constituencyPolygon);
             if (insideConstituency){
-              console.log(constituency);
-              let constituencyName = constituency.properties["Constituency_name"];
-              if (constituencyName == "Hamilton and Clyde Valley"){
+              let homeConstituencyCode = constituency.properties["PCON24CD"];
+              if (homeConstituencyCode == constituencyCode){
                 let pollingDistricts = pollingDistrictFeatureCollection.features;
                 for (var i=0; i<pollingDistricts.length; i++){
                   let pollingDistrictPolygon = pollingDistricts[i].geometry;
@@ -408,11 +407,17 @@
                   }
                 }
               } else {
+                let homeConstituencyIndex = constituencyCodes.indexOf(homeConstituencyCode.toString());
+                let homeConstituency = constituencyList.constituencies[homeConstituencyIndex];
+                let homeConstituencyWebsite = homeConstituency.candidateWebsite;
+                let homeConstituencyImage = homeConstituency.candidateImage;
+
                 document.getElementById("getDirections").style.display = "none";
                 document.getElementById("pollingDirectionsContainer").style.display = "flex";
                 document.getElementById("mapContainer").style.display = "none";
-                document.getElementById("pollingStationAddress").innerHTML = constituencyName;
-                document.getElementById("pollingStationComment").innerHTML = "<br><br>Click <a>here</a> to visit your local Labour candidate's website.";
+                document.getElementById("pollingStationAddress").innerHTML = constituency.properties["Constituency_name"];
+                document.getElementById("pollingStationComment").innerHTML = "<br><br>Click <a id='redirect' href='"+homeConstituencyWebsite+"' target='about_blank'>here</a> to visit your local Labour candidate's website.";
+                document.getElementById("pollingStationStatic").style.backgroundImage = "url("+homeConstituencyImage+")";
                 document.getElementById("pollingStationLabel").innerHTML = "Your constituency is:";
               }
             }
