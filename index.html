@@ -280,6 +280,24 @@
       <div id="sidebar"></div>
     <div>
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
     <script>
       async function retrieveJSONFile(link){
         return new Promise((resolve, reject) => {
@@ -303,16 +321,19 @@
         let [pollingDistrictFeatureCollection,pollingStationFeatureCollection,westminsterConstituenciesFeatureCollection,constituencyList] = await Promise.all([retrieveJSONFile("https://api.npoint.io/d0886319403f4bb8cb06"),retrieveJSONFile("https://api.npoint.io/632417e6253a875b50dd"),retrieveJSONFile("https://api.npoint.io/f2ac96caa34191431aa2"),retrieveJSONFile("https://api.npoint.io/8b144b0dbccc8153049e")]);
 
         let pollingStationIndices = pollingStationFeatureCollection.features.map(x => x.properties["district_c"]);
-        let constituencyListIndices = constituencyList.constituencies.map(x => x.code);
+        let constituencyCodes = constituencyList.constituencies.map(x => x.code);
 
         google.maps.event.addListener(autocomplete,'place_changed', updateMap);
 
         let src = document.location.href;
-        let urlParams = new URLSearchParams(src.search);
-        let constituencyCode = urlParams.get('code');
-        console.log(constituencyCode);
+        let constituencyCode = src.split("?code=")[1];
+        let constituencyIndex = constituencyCodes.indexOf(constituencyCode);
+        let selectedConstituency = constituencyList[constituencyIndex];
 
         document.getElementById("informationContainer").style.display = "flex";
+        document.getElementById("subheading").innerHTML = "in "+ selectedConstituency.constituencyName;
+        document.getElementById("candidateName").innerHTML = "in "+ selectedConstituency.candidateName;
+        document.getElementById("hero").backgroundImage = "url("+selectedConstituency.candidateImage+")";
 
         async function updateMap(){
           let address = document.getElementById("addressInput").value.split(" ").join("_");
@@ -329,6 +350,7 @@
             let constituencyPolygon = constituency.geometry;
             let insideConstituency = turf.inside(point,constituencyPolygon);
             if (insideConstituency){
+              console.log(constituency);
               let constituencyName = constituency.properties["Constituency_name"];
               if (constituencyName == "Hamilton and Clyde Valley"){
                 let pollingDistricts = pollingDistrictFeatureCollection.features;
