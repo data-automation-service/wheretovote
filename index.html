@@ -10,9 +10,8 @@
         margin: auto;
         width: 80vw;
         height: auto;
-        display: flex;
         max-width: 800px;
-        cursor: progress;
+        display: none;
       }
 
         #left {
@@ -80,7 +79,6 @@
                 border-radius: 0;
                 outline: 0px;
                 box-sizing:border-box;
-                cursor: progress;
               }
 
               #pollingDirectionsContainer {
@@ -184,7 +182,6 @@
           }
 
       #mapContainer {
-        display: none;
         position:relative;
         margin: auto;
         width: 80vw;
@@ -194,6 +191,7 @@
         padding-right:300px;
         box-sizing:border-box;
         margin-top: -3px;
+        display: none;
       }
 
         #map {
@@ -269,13 +267,13 @@
           </div>
         </div>
       </div>
-
       <div id="right">
         <div id="hero">
           <h2 id="candidateName">Imogen Walker</h2>
         </div>
       </div>
     </div>
+
     <div id="mapContainer">
       <div id="map"></div>
       <div id="mapHeading">How to get there ...</div>
@@ -307,9 +305,15 @@
         let pollingStationIndices = pollingStationFeatureCollection.features.map(x => x.properties["district_c"]);
         let constituencyListIndices = constituencyList.constituencies.map(x => x.code);
 
-        document.getElementById("informationContainer").style.cursor = "default";
-        document.getElementById("addressInput").style.cursor = "auto";
         google.maps.event.addListener(autocomplete,'place_changed', updateMap);
+
+        let src = document.location.href;
+        let urlParams = new URLSearchParams(src);
+        let constituencyCode = urlParams.get('code');
+        console.log(src,urlParams);
+
+        document.getElementById("informationContainer").style.display = "flex";
+        document.getElementById("mapContainer").style.display = "flex";
 
         async function updateMap(){
           let address = document.getElementById("addressInput").value.split(" ").join("_");
@@ -318,11 +322,6 @@
           let lat = coords["lat"];
           let lng = coords["lng"];
           let position = {lat:lat,lng:lng}
-
-          let src = document.location.href;
-          let urlParams = new URLSearchParams(src);
-          let constituencyCode = urlParams.get('code');
-          console.log(src,urlParams);
 
           let point = turf.point([lng,lat]);
           let westminsterConstituencies = westminsterConstituenciesFeatureCollection.features;
