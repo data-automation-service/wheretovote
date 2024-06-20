@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuwSJFKRQlJ4roKPiFwZ2SZlSWNZYZqIU&loading=async&libraries=places&callback=initMap"></script>
+    
+    <style>
+      #informationContainer {
+        margin: auto;
+        width: 80vw;
+        height: auto;
+        display: flex;
+        max-width: 800px;
+        cursor: progress;
+      }
+
+        #left {
+          padding: 30px 0 10px 0;
+          width: 50%;
+          display:flex;
+          flex-direction: column;
+        }
+
+          #headingSection {
+            width: 100%;
+            display:flex;
+            flex-direction: column;
+            align-items: end;
+          }
+
+              #heading {
+                margin: 0 0 0 0;
+                padding: 10px 20px 10px 20px;
+                background-image: url(https://i.ibb.co/vcC5gc2/Pattern.png);
+                box-sizing: border-box;
+                color: white;
+                font-family: "Roboto", sans-serif;
+                font-weight: 900;
+                text-align: right;
+                font-size: 35px;
+                flex-grow: 0;
+              }
+
+              #subheading {
+                margin: -3px 0 0 0;
+                padding: 10px 20px 10px 20px;
+                border: 3px solid #d00c3c;
+                background-color: white;
+                box-sizing: border-box;
+                color: #d00c3c;
+                font-family: "Roboto", sans-serif;
+                font-weight: 800;
+                text-align: right;
+                flex-grow: 0;
+              }
+
+          #mapSection {
+            width: 100%;
+            height: 100%;
+            margin-top: 20px;
+            display:flex;
+            flex-direction:column;
+            align-items: end;
+          }
+
+              #addressLabel {
+                margin: 0 0 0 0;
+                text-align: right;
+                font-family: "Roboto", sans-serif;
+                font-weight: 500;
+              }
+
+              #addressInput {
+                margin-top:10px;
+                width: 70%;
+                height: 30px;
+                flex-shrink: 0;
+                border: 1px solid black;
+                border-radius: 0;
+                outline: 0px;
+                box-sizing:border-box;
+                cursor: progress;
+              }
+
+              #pollingDirectionsContainer {
+                width: 100%;
+                height: 100%;
+                display: none;
+                margin: 20px 0 20px 0;
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+                overflow: hidden;
+              }
+              
+                  #pollingStationStatic {
+                    height: 100%;
+                    width: 100%;
+                    background-repeat: no-repeat;
+                    background-size: cover;
+                    flex-shrink: 3;
+                  }
+
+                  #pollingDirections {
+                    display: flex;
+                    width: 100%;
+                    height: 100%;
+                    flex-direction: column;
+                    justify-content: center;
+                    padding: 10px 20px 10px 20px;
+                    box-sizing: border-box;
+                    position: relative;
+                    background: white;
+                    flex-shrink: 2;
+                  }
+
+                      #pollingStationLabel {
+                        text-align: left;
+                        font-family: "Roboto", sans-serif;
+                        font-weight: 500;
+                      }
+
+                      #pollingStationAddress {
+                        text-align: left;
+                        font-family: "Roboto", sans-serif;
+                        font-weight: 300;
+                        font-size: 14px;
+                      }
+
+                      #pollingStationComment {
+                        text-align: left;
+                        font-family: "Roboto", sans-serif;
+                        font-weight: 300;
+                        font-size: 14px;
+                        font-style: italic;
+                      }
+
+                          #pollingStationComment > a {
+                            color: blue;
+                            cursor: pointer;
+                          }
+
+                      #getDirections {
+                        position: absolute;
+                        bottom: 0;
+                        right: 0;
+                        width: 40px;
+                        height: 40px;
+                        cursor: pointer;
+                      }
+
+
+        #right {
+          width: 50%;
+        }
+
+          #hero {
+            position: relative;
+            min-height: 400px;
+            height: 100%;
+            width: 100%;
+            background-size: cover;
+            background-position: bottom;
+            background-repeat: no-repeat;
+            background-image: url(https://i.ibb.co/NS5tSWM/Hero.png);
+            padding-left: 20px;
+            margin-left: -20px;
+          }
+
+          #candidateName {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            padding: 10px 20px 10px 20px;
+            border: 3px solid #d00c3c;
+            background-color: white;
+            box-sizing: border-box;
+            color: #d00c3c;
+            font-family: "Roboto", sans-serif;
+            font-weight: 800;
+            text-align: right;
+            flex-grow: 0;
+            margin: 0 0 0 0;
+            font-style: italic;
+          }
+
+      #mapContainer {
+        display: none;
+        position:relative;
+        margin: auto;
+        width: 80vw;
+        height: 300px;
+        max-width: 800px;
+        border: 3px solid #d00c3c;
+        padding-right:300px;
+        box-sizing:border-box;
+        margin-top: -3px;
+      }
+
+        #map {
+          height: 100%;
+          width: 100%;
+        }
+
+          #sidebar {
+            position:absolute;
+            top:0;
+            right:0;
+            height: 100%;
+            box-sizing: border-box;
+            width:300px;
+            background: white;
+            border-left: 3px solid #d00c3c;
+            overflow: scroll;
+          }
+
+              .adp {
+                padding-right: 10px !important;
+              }
+
+              .adp-summary {
+                padding-left: 10px !important;
+              }
+
+              .adp-placemark {
+                padding-left: 10px !important;
+              }
+
+              .adp-legal {
+                display: none;
+              }
+
+          #mapHeading {
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            padding: 15px 15px 15px 0;
+            border-bottom: 3px solid #d00c3c;
+            border-right: 3px solid #d00c3c;
+            background-color: white;
+            box-sizing: border-box;
+            color: #d00c3c;
+            font-family: "Roboto", sans-serif;
+            font-weight: 800;
+            text-align: left;
+            font-size: 20px;
+          }
+    </style>
+  </head>
+
+  <body>
+
+    <div id="informationContainer">
+      <div id="left">
+        <div id="headingSection">
+          <h1 id="heading">WHERE TO VOTE</h1>
+          <h2 id="subheading">in Hamilton & Clyde Valley</h2>
+        </div>
+        <div id="mapSection">
+          <h3 id="addressLabel">Enter your address...</h3>
+          <input id="addressInput">
+          <div id="pollingDirectionsContainer">
+            <div id="pollingDirections">
+              <span id="pollingStationLabel">Your polling station is:</span>
+              <span id="pollingStationAddress"></span>
+              <span id="pollingStationComment"></span>
+              <img id="getDirections" src="https://play-lh.googleusercontent.com/slFZ-FaVX__vCKVGppcO7bRdrNmvtPFe6HIPSEvIIKMcvnULX2sDNLeTVLON9T5fYmU=w480-h960-rw">
+            </div>
+            <div id="pollingStationStatic"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="right">
+        <div id="hero">
+          <h2 id="candidateName">Imogen Walker</h2>
+        </div>
+      </div>
+    </div>
+    <div id="mapContainer">
+      <div id="map"></div>
+      <div id="mapHeading">How to get there ...</div>
+      <div id="sidebar"></div>
+    <div>
+
+    <script>
+      async function retrieveGeoJSONFile(link){
+        return new Promise((resolve, reject) => {
+          fetch(link, {
+            method: 'GET',
+          })
+          .then(response => response.json())
+          .then(geoJSON => {
+            resolve(geoJSON);
+          })
+        })
+      }
+
+      async function initMap(){
+        let addressInput = document.getElementById("addressInput")
+        let options = {
+          componentRestrictions: {country: "GB"}
+        }
+        let autocomplete = new google.maps.places.Autocomplete(addressInput,options);
+
+        let [pollingDistrictFeatureCollection,pollingStationFeatureCollection,westminsterConstituenciesFeatureCollection] = await Promise.all([retrieveGeoJSONFile("https://api.npoint.io/d0886319403f4bb8cb06"),retrieveGeoJSONFile("https://api.npoint.io/632417e6253a875b50dd"),retrieveGeoJSONFile("https://api.npoint.io/f2ac96caa34191431aa2")]);
+
+        let pollingStationIndices = pollingStationFeatureCollection.features.map(x => x.properties["district_c"]);
+
+        document.getElementById("informationContainer").style.cursor = "default";
+        document.getElementById("addressInput").style.cursor = "auto";
+        google.maps.event.addListener(autocomplete,'place_changed', updateMap);
+
+        async function updateMap(){
+          let address = document.getElementById("addressInput").value.split(" ").join("_");
+          let json = await getCoords(address);
+          let coords = json["results"][0]["geometry"]["location"];
+          let lat = coords["lat"];
+          let lng = coords["lng"];
+          let position = {lat:lat,lng:lng}
+
+          let point = turf.point([lng,lat]);
+          let westminsterConstituencies = westminsterConstituenciesFeatureCollection.features;
+          for (var j=0; j<westminsterConstituencies.length; j++){
+            let constituency = westminsterConstituencies[j];
+            let constituencyPolygon = constituency.geometry;
+            let insideConstituency = turf.inside(point,constituencyPolygon);
+            if (insideConstituency){
+              let constituencyName = constituency.properties["Constituency_name"];
+              if (constituencyName == "Hamilton and Clyde Valley"){
+                let pollingDistricts = pollingDistrictFeatureCollection.features;
+                for (var i=0; i<pollingDistricts.length; i++){
+                  let pollingDistrictPolygon = pollingDistricts[i].geometry;
+                  let insidePollingDistrict = turf.inside(point,pollingDistrictPolygon);
+                  if (insidePollingDistrict){
+                    let districtCode = pollingDistricts[i].properties["district_c"];
+                    let index = pollingStationIndices.indexOf(districtCode);
+                    let pollingStation = pollingStationFeatureCollection.features[index];
+                    let pollingStationAddress = pollingStation.properties["polling_place"];
+                    let pollingCoords = pollingStation.geometry.coordinates;
+                    let splitAddress = pollingStationAddress.split(",");
+                    let joinedAddress;
+                    if (isNaN(splitAddress[0])){
+                      joinedAddress = splitAddress.slice(0,splitAddress.length).join("<br>");
+                    } else {
+                      joinedAddress = splitAddress.slice(0,2).join(" ")+"<br>"+splitAddress.slice(2,splitAddress.length).join("<br>");
+                    }
+
+                    let img = document.getElementById("pollingStationStatic");
+                    let imgUrl = "https://maps.googleapis.com/maps/api/streetview?size=600x300&location="+pollingCoords[1]+","+pollingCoords[0]+"&heading=151.78&pitch=-0.76&key=AIzaSyAuwSJFKRQlJ4roKPiFwZ2SZlSWNZYZqIU";
+                    img.style.backgroundImage = "url("+imgUrl+")";
+
+                    document.getElementById("pollingStationLabel").innerHTML = "Your polling station is:"; 
+                    document.getElementById("pollingStationAddress").innerHTML = joinedAddress;
+                    document.getElementById("pollingStationComment").innerHTML = "";
+                    document.getElementById("pollingDirectionsContainer").style.display = "flex";
+                    document.getElementById("getDirections").style.display = "block";
+
+                    map = new google.maps.Map(document.getElementById("map"));
+                    directionsService = new google.maps.DirectionsService();
+                    directionsRenderer = new google.maps.DirectionsRenderer({
+                        draggable: true,
+                        suppressInfoWindows: false,
+                        suppressMarkers: false,
+                        travelMode: google.maps.TravelMode['DRIVING'],
+                        map: map,
+                      });
+
+                    directionsRenderer.setPanel(document.getElementById("sidebar"));
+                    const origin = {query: address};
+                    const destination = {query: pollingStationAddress};
+                    const request = {
+                      origin: origin,
+                      destination: destination,
+                      travelMode: google.maps.TravelMode.DRIVING
+                    };
+                    directionsService.route(request, (result, status) => {
+                      directionsRenderer.setDirections(result);
+                    });
+
+                    return;
+                  }
+                }
+              } else {
+                document.getElementById("getDirections").style.display = "none";
+                document.getElementById("pollingDirectionsContainer").style.display = "flex";
+                document.getElementById("mapContainer").style.display = "none";
+                document.getElementById("pollingStationAddress").innerHTML = constituencyName;
+                document.getElementById("pollingStationComment").innerHTML = "<br><br>Click <a>here</a> to visit your local Labour candidate's website.";
+                document.getElementById("pollingStationLabel").innerHTML = "Your constituency is:";
+              }
+            }
+          }
+        }
+      }
+
+      document.getElementById("getDirections").onclick = function(){
+        document.getElementById("mapContainer").style.display = "block";
+        document.getElementById("getDirections").style.filter = "grayscale(500%)";
+      }
+
+      async function getCoords(address){
+        let url = "https://maps.googleapis.com/maps/api/geocode/json?address="+address+"&key=AIzaSyAuwSJFKRQlJ4roKPiFwZ2SZlSWNZYZqIU";
+        const response = await fetch(url);
+        const json = response.json();
+        return json;
+      }
+
+    </script>
+
+  </body>
+
+</html>
