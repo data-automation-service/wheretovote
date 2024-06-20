@@ -329,6 +329,7 @@
         let constituencyCode = src.split("?code=")[1];
         let constituencyIndex = constituencyCodes.indexOf(constituencyCode);
         let selectedConstituency = constituencyList[constituencyIndex];
+        console.log(src,constituencyCode)
 
         document.getElementById("informationContainer").style.display = "flex";
         document.getElementById("subheading").innerHTML = "in "+ selectedConstituency.constituencyName;
