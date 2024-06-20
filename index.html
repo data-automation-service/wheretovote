@@ -283,7 +283,7 @@
     <div>
 
     <script>
-      async function retrieveGeoJSONFile(link){
+      async function retrieveJSONFile(link){
         return new Promise((resolve, reject) => {
           fetch(link, {
             method: 'GET',
@@ -302,9 +302,10 @@
         }
         let autocomplete = new google.maps.places.Autocomplete(addressInput,options);
 
-        let [pollingDistrictFeatureCollection,pollingStationFeatureCollection,westminsterConstituenciesFeatureCollection] = await Promise.all([retrieveGeoJSONFile("https://api.npoint.io/d0886319403f4bb8cb06"),retrieveGeoJSONFile("https://api.npoint.io/632417e6253a875b50dd"),retrieveGeoJSONFile("https://api.npoint.io/f2ac96caa34191431aa2")]);
+        let [pollingDistrictFeatureCollection,pollingStationFeatureCollection,westminsterConstituenciesFeatureCollection,constituencyList] = await Promise.all([retrieveJSONFile("https://api.npoint.io/d0886319403f4bb8cb06"),retrieveJSONFile("https://api.npoint.io/632417e6253a875b50dd"),retrieveJSONFile("https://api.npoint.io/f2ac96caa34191431aa2"),retrieveJSONFile("https://api.npoint.io/8b144b0dbccc8153049e")]);
 
         let pollingStationIndices = pollingStationFeatureCollection.features.map(x => x.properties["district_c"]);
+        let constituencyListIndices = constituencyList.constituencies.map(x => x.code);
 
         document.getElementById("informationContainer").style.cursor = "default";
         document.getElementById("addressInput").style.cursor = "auto";
@@ -317,6 +318,11 @@
           let lat = coords["lat"];
           let lng = coords["lng"];
           let position = {lat:lat,lng:lng}
+
+          let src = document.location.href;
+          let urlParams = new URLSearchParams(src);
+          let constituencyCode = urlParams.get('Code');
+          console.log(constituencyCode);
 
           let point = turf.point([lng,lat]);
           let westminsterConstituencies = westminsterConstituenciesFeatureCollection.features;
