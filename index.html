@@ -308,12 +308,11 @@
         google.maps.event.addListener(autocomplete,'place_changed', updateMap);
 
         let src = document.location.href;
-        let urlParams = new URLSearchParams(src);
+        let urlParams = new URLSearchParams(src.search);
         let constituencyCode = urlParams.get('code');
-        console.log(src,urlParams);
+        console.log(constituencyCode);
 
         document.getElementById("informationContainer").style.display = "flex";
-        document.getElementById("mapContainer").style.display = "flex";
 
         async function updateMap(){
           let address = document.getElementById("addressInput").value.split(" ").join("_");
