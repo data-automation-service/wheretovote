@@ -11,7 +11,7 @@
         width: 80%;
         height: auto;
         max-width: 800px;
-        display: flex;
+        display: none;
       }
 
         #left {
@@ -332,6 +332,7 @@
         let constituencyIndex = constituencyCodes.indexOf(constituencyCode.toString());
         let selectedConstituency = constituencyList.constituencies[constituencyIndex];
 
+        document.getElementById("informationContainer").style.display = "flex";
         document.getElementById("subheading").innerHTML = "in "+ selectedConstituency.constituencyName;
         document.getElementById("candidateName").innerHTML = selectedConstituency.candidateName;
         document.getElementById("hero").style.backgroundImage = "url("+selectedConstituency.candidateImage+")";
