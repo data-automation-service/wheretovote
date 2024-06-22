@@ -306,7 +306,7 @@
           }
         }
 
-        @media (max-width: 520px){
+        @media (max-width: 600px){
           #modalImage {
             display: none;
           }
@@ -340,6 +340,7 @@
             .modal-text {
               flex-grow: 2;
               padding: 0 10px 0 10px;
+              flex-shrink: 2;
             }
 
               .modal-text span {
@@ -382,11 +383,11 @@
                   }
 
             #modalImage {
-              flex-grow: 1;
+              flex-shrink: 1;
               background-size: contain;
               background-position: bottom;
               background-repeat: no-repeat;
-              min-width: 150px;
+              width: 250px;
               min-height: 150px;
               margin-bottom: -20px;
             }
@@ -602,7 +603,6 @@
                 if (insidePollingDistrict){
                   let districtCode = pollingDistricts[i].properties["district_c"];
                   let index = pollingStationIndices.indexOf(districtCode.toString());
-                  console.log(pollingStationIndices,districtCode,index)
                   let pollingStation = pollingStationFeatureCollection.features[index];
                   let pollingStationAddress = pollingStation.properties["polling_place"];
                   let pollingCoords = pollingStation.geometry.coordinates;
