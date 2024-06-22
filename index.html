@@ -601,7 +601,8 @@
                 let insidePollingDistrict = turf.inside(point,pollingDistrictPolygon);
                 if (insidePollingDistrict){
                   let districtCode = pollingDistricts[i].properties["district_c"];
-                  let index = pollingStationIndices.indexOf(districtCode);
+                  let index = pollingStationIndices.indexOf(districtCode.toString());
+                  console.log(pollingStationIndices,districtCode,index)
                   let pollingStation = pollingStationFeatureCollection.features[index];
                   let pollingStationAddress = pollingStation.properties["polling_place"];
                   let pollingCoords = pollingStation.geometry.coordinates;
