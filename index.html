@@ -12,13 +12,16 @@
         height: auto;
         max-width: 800px;
         display: none;
+        flex-wrap: wrap;
       }
 
         #left {
           padding: 30px 0 10px 0;
-          width: 50%;
+          flex-basis: 340px;
           display:flex;
           flex-direction: column;
+          flex-grow: 1;
+          min-height: 300px;
         }
 
           #headingSection {
@@ -52,6 +55,7 @@
                 font-weight: 800;
                 text-align: right;
                 flex-grow: 0;
+                font-size: 20px;
               }
 
           #mapSection {
@@ -85,7 +89,7 @@
                 width: 100%;
                 height: 100%;
                 display: none;
-                margin: 20px 0 20px 0;
+                margin: 20px 0 10px 0;
                 box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
                 overflow: hidden;
               }
@@ -94,7 +98,8 @@
                     height: 100%;
                     width: 100%;
                     background-repeat: no-repeat;
-                    background-size: cover;
+                    background-size: contain;
+                    background-position: center;
                     flex-shrink: 3;
                   }
 
@@ -148,19 +153,20 @@
 
 
         #right {
-          width: 50%;
+          flex-basis: 340px;
+          flex-grow: 1;
+          position: relative;
+          min-height: 300px;
         }
 
           #hero {
-            position: relative;
-            min-height: 400px;
+            position: absolute;
+            left: -10%;
             height: 100%;
-            width: 100%;
-            background-size: cover;
+            width: 110%;
+            background-size: contain;
             background-position: bottom;
             background-repeat: no-repeat;
-            padding-left: 20px;
-            margin-left: -20px;
           }
 
           #candidateName {
@@ -182,61 +188,63 @@
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
             border-top-right-radius: 10px;
             border-top-left-radius: 10px;
+            font-size: 30px;
           }
 
       #mapContainer {
         position:relative;
         margin: auto;
         width: 80%;
-        height: 300px;
+        height: auto;
         max-width: 800px;
-        border: 3px solid #d00c3c;
-        padding-right:300px;
         box-sizing:border-box;
         margin-top: -3px;
         display: none;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
       }
 
         #map {
           height: 100%;
-          width: 100%;
+          flex-basis: 300px;
+          flex-grow: 1;
+          border: 3px solid #d00c3c;
+          box-sizing: border-box;
+          height: 300px;
         }
 
-          #sidebar {
-            position:absolute;
-            top:0;
-            right:0;
-            height: 100%;
-            box-sizing: border-box;
-            width:300px;
-            background: white;
-            border-left: 3px solid #d00c3c;
-            overflow: scroll;
-          }
+        #sidebar {
+          height: 100%;
+          box-sizing: border-box;
+          flex-basis: 300px;
+          flex-grow: 1;
+          background: white;
+          border-left: 3px solid #d00c3c;
+          overflow: scroll;
+          border: 3px solid #d00c3c;
+          margin-left: -3px;
+          height: 300px;
+        }
 
-              .adp {
-                padding-right: 10px !important;
-              }
+            .adp {
+              padding-right: 10px !important;
+            }
 
-              .adp-summary {
-                padding-left: 10px !important;
-              }
+            .adp-summary {
+              padding-left: 10px !important;
+            }
 
-              .adp-placemark {
-                padding-left: 10px !important;
-              }
+            .adp-placemark {
+              padding-left: 10px !important;
+            }
 
-              .adp-legal {
-                display: none;
-              }
+            .adp-legal {
+              display: none;
+            }
 
           #mapHeading {
             position: absolute;
-            top: -3px;
-            left: -3px;
-            padding: 15px 15px 15px 0;
-            border-bottom: 3px solid #d00c3c;
-            border-right: 3px solid #d00c3c;
+            padding: 15px;
             background-color: white;
             box-sizing: border-box;
             color: #d00c3c;
@@ -244,7 +252,53 @@
             font-weight: 800;
             text-align: left;
             font-size: 20px;
+            min-width: 190px;
+            margin-top: 3px;
+            margin-left: 3px;
           }
+
+
+          @media (max-width: 866px) {
+            #headingSection {
+              align-items: center;
+            }
+            #mapSection {
+              align-items: center;
+            }
+
+            #hero {
+              left: 0;
+            }
+
+            #pollingDirectionsContainer {
+              width: 70%;
+            }
+
+            #left {
+              min-height: 0;
+            }
+          }
+
+        @media (max-width: 400px) {
+          #addressInput {
+            width: 100%;
+          }
+          #pollingDirectionsContainer {
+            width: 100%;
+          }
+          #right {
+            min-height: 200px;
+          }
+        }
+
+        @media (max-width: 766px) {
+          #sidebar {
+            margin: -3px 0 0 0;
+          }
+        }
+
+
+
     </style>
   </head>
 
@@ -253,11 +307,11 @@
     <div id="informationContainer">
       <div id="left">
         <div id="headingSection">
-          <h1 id="heading">WHERE TO VOTE</h1>
-          <h2 id="subheading">in ELECTORATE</h2>
+          <span id="heading">WHERE TO VOTE</span>
+          <span id="subheading">in ELECTORATE</span>
         </div>
         <div id="mapSection">
-          <h3 id="addressLabel">Enter your address...</h3>
+          <span id="addressLabel">Enter your address...</span>
           <input id="addressInput">
           <div id="pollingDirectionsContainer">
             <div id="pollingDirections">
@@ -272,7 +326,7 @@
       </div>
       <div id="right">
         <div id="hero">
-          <h2 id="candidateName">Candidate Name</h2>
+          <span id="candidateName">Candidate Name</span>
         </div>
       </div>
     </div>
@@ -330,7 +384,7 @@
 
         let src = document.location.href;
         let constituencyCode = src.split("?code=")[1];
-        if (!constituencyCode){constituencyCode = "S14000006"}
+        if (!constituencyCode){constituencyCode = "S14000092"}
         let constituencyIndex = constituencyCodes.indexOf(constituencyCode.toString());
         let selectedConstituency = constituencyList.constituencies[constituencyIndex];
 
@@ -375,6 +429,7 @@
                     }
 
                     let img = document.getElementById("pollingStationStatic");
+                    img.style.backgroundSize = "cover";
                     let imgUrl = "https://maps.googleapis.com/maps/api/streetview?size=600x300&location="+pollingCoords[1]+","+pollingCoords[0]+"&heading=151.78&pitch=-0.76&key=AIzaSyAuwSJFKRQlJ4roKPiFwZ2SZlSWNZYZqIU";
                     img.style.backgroundImage = "url("+imgUrl+")";
 
@@ -421,6 +476,7 @@
                 document.getElementById("pollingStationAddress").innerHTML = constituency.properties["Constituency_name"];
                 document.getElementById("pollingStationComment").innerHTML = "<br>Click <a id='redirect' href='"+homeConstituencyWebsite+"' target='about_blank'>here</a> to visit your local Labour candidate's website.";
                 document.getElementById("pollingStationStatic").style.backgroundImage = "url("+homeConstituencyImage+")";
+                document.getElementById("pollingStationStatic").style.backgroundSize = "contain";
                 document.getElementById("pollingStationLabel").innerHTML = "Your constituency is:";
               }
             }
@@ -429,7 +485,7 @@
       }
 
       document.getElementById("getDirections").onclick = function(){
-        document.getElementById("mapContainer").style.display = "block";
+        document.getElementById("mapContainer").style.display = "flex";
         document.getElementById("getDirections").style.filter = "grayscale(500%)";
       }
 
