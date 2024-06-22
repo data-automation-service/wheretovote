@@ -210,6 +210,7 @@
           flex-basis: 300px;
           flex-grow: 1;
           border: 3px solid #d00c3c;
+          border-right: none;
           box-sizing: border-box;
           height: 300px;
         }
@@ -220,10 +221,9 @@
           flex-basis: 300px;
           flex-grow: 1;
           background: white;
-          border-left: 3px solid #d00c3c;
           overflow: scroll;
           border: 3px solid #d00c3c;
-          margin-left: -3px;
+          border-left: none;
           height: 300px;
         }
 
@@ -256,6 +256,7 @@
             min-width: 190px;
             margin-top: 3px;
             margin-left: 3px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
           }
 
 
@@ -269,6 +270,7 @@
 
             #hero {
               left: 0;
+              width:100%;
             }
 
             #pollingDirectionsContainer {
@@ -294,16 +296,142 @@
 
         @media (max-width: 766px) {
           #sidebar {
-            margin: -3px 0 0 0;
+            height: auto;
+            border-top: none;
+            border-left: 3px solid #d00c3c;
+          }
+          #map {
+            border-bottom: none;
+            border-right: 3px solid #d00c3c;
           }
         }
 
+        @media (max-width: 520px){
+          #modalImage {
+            display: none;
+          }
+        }
 
+      .modal {
+        display: none; 
+        position: fixed;
+        z-index: 1; 
+        padding-top: 100px;
+        left: 0;
+        top: 0;
+        width: 100%; 
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4); 
+      }
+
+          .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            display: flex;
+            position: relative;
+            max-width: 800px;
+          }
+
+            .modal-text {
+              flex-grow: 2;
+              padding: 0 10px 0 10px;
+            }
+
+              .modal-text span {
+                font-family: "Roboto", sans-serif;
+                text-align: left;
+                font-size: 18px;
+              }
+
+              #candidateName2,
+              #constituencyName {
+                font-weight: 600;
+              }
+
+              #redirectLinks {
+                width: 100%;
+                margin-top: 10px;
+                display:flex;
+                flex-wrap: wrap;
+              }
+
+                  .button {
+                    background-color: #d00c3c;
+                    border: none;
+                    color: white;
+                    padding: 15px 10px;
+                    text-align: center;
+                    text-decoration: none;
+                    font-size: 16px;
+                    margin-right: 10px;
+                    cursor: pointer;
+                    font-family: "Roboto", sans-serif;
+                    font-size: 18px;
+                    flex-grow: 1;
+                    flex-basis: 200px;
+                    margin-bottom: 10px;
+                  }
+
+                  #visitCandidatesWebsite {
+                    margin-right: 10px;
+                  }
+
+            #modalImage {
+              flex-grow: 1;
+              background-size: contain;
+              background-position: bottom;
+              background-repeat: no-repeat;
+              min-width: 150px;
+              min-height: 150px;
+              margin-bottom: -20px;
+            }
+
+          #close {
+            color: #aaaaaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 38px;
+            font-weight: bold;
+            z-index:2;
+          }
+
+          #close:hover,
+          #close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+          }
 
     </style>
   </head>
 
   <body>
+
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-text">
+          <span id="close">&times;</span><br>
+          <span>The address you entered is in the constituency of <span id="constituencyName"></span>.</span>
+          <br><br>
+          <span>Your Scottish Labour candidate is <span id="candidateName2"></span>.</span>
+          <br><br>
+          <div id="redirectLinks">
+            <a id="visitCandidatesWebsite" class="button" target="about_blank">Visit Candidate's website</a>
+            <button id="findPollingStation" class="button">Find my Polling Station</button>
+          </div>
+        </div>
+        <div id="modalImage">
+          <div id="candidateName2"></div>
+        </div>
+      </div>
+
+    </div>
 
     <div id="informationContainer">
       <div id="left">
@@ -313,7 +441,7 @@
         </div>
         <div id="mapSection">
           <span id="addressLabel">Enter your address...</span>
-          <input id="addressInput">
+          <input id="addressInput" placeholder="Enter your address...">
           <div id="pollingDirectionsContainer">
             <div id="pollingDirections">
               <span id="pollingStationLabel">Your polling station is:</span>
@@ -338,23 +466,55 @@
       <div id="sidebar"></div>
     <div>
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <script>
       async function retrieveJSONFile(link){
@@ -410,77 +570,84 @@
             let insideConstituency = turf.inside(point,constituencyPolygon);
             if (insideConstituency){
               let homeConstituencyCode = constituency.properties["PCON24CD"];
-              if (homeConstituencyCode == constituencyCode){
-                let pollingDistricts = pollingDistrictFeatureCollection.features;
-                for (var i=0; i<pollingDistricts.length; i++){
-                  let pollingDistrictPolygon = pollingDistricts[i].geometry;
-                  let insidePollingDistrict = turf.inside(point,pollingDistrictPolygon);
-                  if (insidePollingDistrict){
-                    let districtCode = pollingDistricts[i].properties["district_c"];
-                    let index = pollingStationIndices.indexOf(districtCode);
-                    let pollingStation = pollingStationFeatureCollection.features[index];
-                    let pollingStationAddress = pollingStation.properties["polling_place"];
-                    let pollingCoords = pollingStation.geometry.coordinates;
-                    let splitAddress = pollingStationAddress.split(",");
-                    let joinedAddress;
-                    if (isNaN(splitAddress[0])){
-                      joinedAddress = splitAddress.slice(0,splitAddress.length).join("<br>");
-                    } else {
-                      joinedAddress = splitAddress.slice(0,2).join(" ")+"<br>"+splitAddress.slice(2,splitAddress.length).join("<br>");
-                    }
+              let homeConstituencyIndex = constituencyCodes.indexOf(homeConstituencyCode.toString());
+              let homeConstituency = constituencyList.constituencies[homeConstituencyIndex];
+              let homeConstituencyWebsite = homeConstituency.candidateWebsite;
+              let homeConstituencyImage = homeConstituency.candidateImage;
+              let homeConstituencyName = homeConstituency.constituencyName;
+              let homeConstituencyCandidateName = homeConstituency.candidateName;
 
-                    let img = document.getElementById("pollingStationStatic");
-                    img.style.backgroundSize = "cover";
-                    let imgUrl = "https://maps.googleapis.com/maps/api/streetview?size=600x300&location="+pollingCoords[1]+","+pollingCoords[0]+"&heading=151.78&pitch=-0.76&key=AIzaSyAuwSJFKRQlJ4roKPiFwZ2SZlSWNZYZqIU";
-                    img.style.backgroundImage = "url("+imgUrl+")";
+              document.getElementById("findPollingStation").onclick = function(){
+                document.getElementById("subheading").innerHTML = "in "+homeConstituencyName;
+                document.getElementById("candidateName").innerHTML = homeConstituencyCandidateName;
+                document.getElementById("hero").style.backgroundImage = "url("+homeConstituencyImage+")";
+                document.getElementById("myModal").style.display = "none";
+              }
 
-                    document.getElementById("pollingStationLabel").innerHTML = "Your polling station is:"; 
-                    document.getElementById("pollingStationAddress").innerHTML = joinedAddress;
-                    document.getElementById("pollingStationComment").innerHTML = "";
-                    document.getElementById("pollingDirectionsContainer").style.display = "flex";
-                    document.getElementById("getDirections").style.display = "block";
+              if (homeConstituencyCode != constituencyCode){
+                document.getElementById("constituencyName").innerHTML = homeConstituencyName;
+                document.getElementById("visitCandidatesWebsite").href = homeConstituencyWebsite;
+                document.getElementById("modalImage").style.backgroundImage = "url("+homeConstituencyImage+")";
+                document.getElementById("candidateName2").innerHTML = homeConstituencyCandidateName;
+                document.getElementById("myModal").style.display = "block";
+                document.getElementById("mapContainer").style.display = "none";
+              } else {
+                document.getElementById("findPollingStation").click();
+              }
 
-                    map = new google.maps.Map(document.getElementById("map"));
-                    directionsService = new google.maps.DirectionsService();
-                    directionsRenderer = new google.maps.DirectionsRenderer({
-                        draggable: true,
-                        suppressInfoWindows: false,
-                        suppressMarkers: false,
-                        travelMode: google.maps.TravelMode['DRIVING'],
-                        map: map,
-                      });
+              let pollingDistricts = pollingDistrictFeatureCollection.features;
+              for (var i=0; i<pollingDistricts.length; i++){
+                let pollingDistrictPolygon = pollingDistricts[i].geometry;
+                let insidePollingDistrict = turf.inside(point,pollingDistrictPolygon);
+                if (insidePollingDistrict){
+                  let districtCode = pollingDistricts[i].properties["district_c"];
+                  let index = pollingStationIndices.indexOf(districtCode);
+                  let pollingStation = pollingStationFeatureCollection.features[index];
+                  let pollingStationAddress = pollingStation.properties["polling_place"];
+                  let pollingCoords = pollingStation.geometry.coordinates;
+                  let splitAddress = pollingStationAddress.split(",");
+                  let joinedAddress;
+                  if (isNaN(splitAddress[0])){
+                    joinedAddress = splitAddress.slice(0,splitAddress.length).join("<br>");
+                  } else {
+                    joinedAddress = splitAddress.slice(0,2).join(" ")+"<br>"+splitAddress.slice(2,splitAddress.length).join("<br>");
+                  }
 
-                    directionsRenderer.setPanel(document.getElementById("sidebar"));
-                    const origin = {query: address};
-                    const destination = {query: pollingStationAddress};
-                    const request = {
-                      origin: origin,
-                      destination: destination,
-                      travelMode: google.maps.TravelMode.DRIVING
-                    };
-                    directionsService.route(request, (result, status) => {
-                      directionsRenderer.setDirections(result);
+                  let img = document.getElementById("pollingStationStatic");
+                  img.style.backgroundSize = "cover";
+                  let imgUrl = "https://maps.googleapis.com/maps/api/streetview?size=600x300&location="+pollingCoords[1]+","+pollingCoords[0]+"&heading=151.78&pitch=-0.76&key=AIzaSyAuwSJFKRQlJ4roKPiFwZ2SZlSWNZYZqIU";
+                  img.style.backgroundImage = "url("+imgUrl+")";
+
+                  document.getElementById("pollingStationLabel").innerHTML = "Your polling station is:"; 
+                  document.getElementById("pollingStationAddress").innerHTML = joinedAddress;
+                  document.getElementById("pollingStationComment").innerHTML = "";
+                  document.getElementById("pollingDirectionsContainer").style.display = "flex";
+                  document.getElementById("getDirections").style.display = "block";
+
+                  map = new google.maps.Map(document.getElementById("map"));
+                  directionsService = new google.maps.DirectionsService();
+                  directionsRenderer = new google.maps.DirectionsRenderer({
+                      draggable: true,
+                      suppressInfoWindows: false,
+                      suppressMarkers: false,
+                      travelMode: google.maps.TravelMode['DRIVING'],
+                      map: map,
                     });
 
-                    return;
-                  }
-                }
-              } else {
-                let homeConstituencyIndex = constituencyCodes.indexOf(homeConstituencyCode.toString());
-                let homeConstituency = constituencyList.constituencies[homeConstituencyIndex];
-                let homeConstituencyWebsite = homeConstituency.candidateWebsite;
-                let homeConstituencyImage = homeConstituency.candidateImage;
-                let homeConstituencyName = homeConstituency.constituencyName;
-                let homeConstituencyCandidateName = homeConstituency.candidateName;
+                  directionsRenderer.setPanel(document.getElementById("sidebar"));
+                  const origin = {query: address};
+                  const destination = {query: pollingStationAddress};
+                  const request = {
+                    origin: origin,
+                    destination: destination,
+                    travelMode: google.maps.TravelMode.DRIVING
+                  };
+                  directionsService.route(request, (result, status) => {
+                    directionsRenderer.setDirections(result);
+                  });
 
-                document.getElementById("getDirections").style.display = "none";
-                document.getElementById("pollingDirectionsContainer").style.display = "flex";
-                document.getElementById("mapContainer").style.display = "none";
-                document.getElementById("pollingStationAddress").innerHTML = homeConstituencyName;
-                document.getElementById("pollingStationComment").innerHTML = "<br>Click <a id='redirect' href='"+homeConstituencyWebsite+"' target='about_blank'>here</a> to visit "+homeConstituencyCandidateName+"'s website.";
-                document.getElementById("pollingStationStatic").style.backgroundImage = "url("+homeConstituencyImage+")";
-                document.getElementById("pollingStationStatic").style.backgroundSize = "contain";
-                document.getElementById("pollingStationLabel").innerHTML = "Your constituency is:";
+                  return;
+                }
               }
             }
           }
@@ -490,6 +657,10 @@
       document.getElementById("getDirections").onclick = function(){
         document.getElementById("mapContainer").style.display = "flex";
         document.getElementById("getDirections").style.filter = "grayscale(500%)";
+      }
+
+      document.getElementById("close").onclick = function(){
+        document.getElementById("myModal").style.display = "none";
       }
 
       async function getCoords(address){
