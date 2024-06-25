@@ -498,25 +498,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <script>
       async function retrieveJSONFile(link){
         return new Promise((resolve, reject) => {
@@ -570,6 +551,7 @@
             let constituencyPolygon = constituency.geometry;
             let insideConstituency = turf.inside(point,constituencyPolygon);
             if (insideConstituency){
+
               let homeConstituencyCode = constituency.properties["PCON24CD"];
               let homeConstituencyIndex = constituencyCodes.indexOf(homeConstituencyCode.toString());
               let homeConstituency = constituencyList.constituencies[homeConstituencyIndex];
@@ -583,6 +565,67 @@
                 document.getElementById("candidateName").innerHTML = homeConstituencyCandidateName;
                 document.getElementById("hero").style.backgroundImage = "url("+homeConstituencyImage+")";
                 document.getElementById("myModal").style.display = "none";
+
+                let pollingDistricts = pollingDistrictFeatureCollection.features;
+                for (var i=0; i<pollingDistricts.length; i++){
+                  let pollingDistrictPolygon = pollingDistricts[i].geometry;
+                  let insidePollingDistrict = turf.inside(point,pollingDistrictPolygon);
+                  if (insidePollingDistrict){
+                    let districtCode = pollingDistricts[i].properties["district_c"];
+                    let index = pollingStationIndices.indexOf(districtCode.toString());
+                    if (index < 0){
+                      document.getElementById("pollingStationLabel").innerHTML = "Your polling station has not yet been published."; 
+                      document.getElementById("pollingStationAddress").innerHTML = "Please check your post for information regarding your polling station.";
+                      document.getElementById("getDirections").style.display = "none";
+                      document.getElementById("pollingStationStatic").style.display = "none";
+                      document.getElementById("pollingDirectionsContainer").style.display = "flex";
+                    } else {
+                      let pollingStation = pollingStationFeatureCollection.features[index];
+                      let pollingStationAddress = pollingStation.properties["polling_place"];
+                      let pollingCoords = pollingStation.geometry.coordinates;
+                      let splitAddress = pollingStationAddress.split(",");
+                      let joinedAddress;
+                      if (isNaN(splitAddress[0])){
+                        joinedAddress = splitAddress.slice(0,splitAddress.length).join("<br>");
+                      } else {
+                        joinedAddress = splitAddress.slice(0,2).join(" ")+"<br>"+splitAddress.slice(2,splitAddress.length).join("<br>");
+                      }
+
+                      let img = document.getElementById("pollingStationStatic");
+                      img.style.backgroundSize = "cover";
+                      let imgUrl = "https://maps.googleapis.com/maps/api/streetview?size=600x300&location="+pollingCoords[1]+","+pollingCoords[0]+"&heading=151.78&pitch=-0.76&key=AIzaSyAuwSJFKRQlJ4roKPiFwZ2SZlSWNZYZqIU";
+                      img.style.backgroundImage = "url("+imgUrl+")";
+
+                      document.getElementById("pollingStationLabel").innerHTML = "Your polling station is:"; 
+                      document.getElementById("pollingStationAddress").innerHTML = joinedAddress;
+                      document.getElementById("pollingDirectionsContainer").style.display = "flex";
+                      document.getElementById("getDirections").style.display = "block";
+                      document.getElementById("pollingStationStatic").style.display = "block";
+
+                      map = new google.maps.Map(document.getElementById("map"));
+                      directionsService = new google.maps.DirectionsService();
+                      directionsRenderer = new google.maps.DirectionsRenderer({
+                          draggable: true,
+                          suppressInfoWindows: false,
+                          suppressMarkers: false,
+                          travelMode: google.maps.TravelMode['DRIVING'],
+                          map: map,
+                        });
+
+                      directionsRenderer.setPanel(document.getElementById("sidebar"));
+                      const origin = {query: address};
+                      const destination = {query: pollingStationAddress};
+                      const request = {
+                        origin: origin,
+                        destination: destination,
+                        travelMode: google.maps.TravelMode.DRIVING
+                      };
+                      directionsService.route(request, (result, status) => {
+                        directionsRenderer.setDirections(result);
+                      });
+                    }
+                  }
+                }
               }
 
               if (homeConstituencyCode != constituencyCode){
@@ -592,64 +635,12 @@
                 document.getElementById("candidateName2").innerHTML = homeConstituencyCandidateName;
                 document.getElementById("myModal").style.display = "block";
                 document.getElementById("mapContainer").style.display = "none";
+                document.getElementById("pollingStationContainer").style.display = "none";
               } else {
                 document.getElementById("findPollingStation").click();
               }
 
-              let pollingDistricts = pollingDistrictFeatureCollection.features;
-              for (var i=0; i<pollingDistricts.length; i++){
-                let pollingDistrictPolygon = pollingDistricts[i].geometry;
-                let insidePollingDistrict = turf.inside(point,pollingDistrictPolygon);
-                if (insidePollingDistrict){
-                  let districtCode = pollingDistricts[i].properties["district_c"];
-                  let index = pollingStationIndices.indexOf(districtCode.toString());
-                  let pollingStation = pollingStationFeatureCollection.features[index];
-                  let pollingStationAddress = pollingStation.properties["polling_place"];
-                  let pollingCoords = pollingStation.geometry.coordinates;
-                  let splitAddress = pollingStationAddress.split(",");
-                  let joinedAddress;
-                  if (isNaN(splitAddress[0])){
-                    joinedAddress = splitAddress.slice(0,splitAddress.length).join("<br>");
-                  } else {
-                    joinedAddress = splitAddress.slice(0,2).join(" ")+"<br>"+splitAddress.slice(2,splitAddress.length).join("<br>");
-                  }
-
-                  let img = document.getElementById("pollingStationStatic");
-                  img.style.backgroundSize = "cover";
-                  let imgUrl = "https://maps.googleapis.com/maps/api/streetview?size=600x300&location="+pollingCoords[1]+","+pollingCoords[0]+"&heading=151.78&pitch=-0.76&key=AIzaSyAuwSJFKRQlJ4roKPiFwZ2SZlSWNZYZqIU";
-                  img.style.backgroundImage = "url("+imgUrl+")";
-
-                  document.getElementById("pollingStationLabel").innerHTML = "Your polling station is:"; 
-                  document.getElementById("pollingStationAddress").innerHTML = joinedAddress;
-                  document.getElementById("pollingStationComment").innerHTML = "";
-                  document.getElementById("pollingDirectionsContainer").style.display = "flex";
-                  document.getElementById("getDirections").style.display = "block";
-
-                  map = new google.maps.Map(document.getElementById("map"));
-                  directionsService = new google.maps.DirectionsService();
-                  directionsRenderer = new google.maps.DirectionsRenderer({
-                      draggable: true,
-                      suppressInfoWindows: false,
-                      suppressMarkers: false,
-                      travelMode: google.maps.TravelMode['DRIVING'],
-                      map: map,
-                    });
-
-                  directionsRenderer.setPanel(document.getElementById("sidebar"));
-                  const origin = {query: address};
-                  const destination = {query: pollingStationAddress};
-                  const request = {
-                    origin: origin,
-                    destination: destination,
-                    travelMode: google.maps.TravelMode.DRIVING
-                  };
-                  directionsService.route(request, (result, status) => {
-                    directionsRenderer.setDirections(result);
-                  });
-
-                  return;
-                }
-              }
+              return;
             }
           }
           alert("The address you entered is outside Scotland.")
